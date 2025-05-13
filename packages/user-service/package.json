@@ -1,0 +1,11 @@
+{
+    "name": "user-service",
+    "scripts": {
+      "start": "nest start",
+      "build": "nest build"
+    },
+    "dependencies": {
+   
+    }
+  }
+  
