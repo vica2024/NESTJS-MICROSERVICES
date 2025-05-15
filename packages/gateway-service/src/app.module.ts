@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -9,6 +9,6 @@ import { ConfigModule } from '@nestjs/config';
       envFilePath: ['.env'], // 可以指定多个
     }),
     AuthModule, // 导入鉴权模块
-  ]
+  ],
 })
 export class AppModule {}

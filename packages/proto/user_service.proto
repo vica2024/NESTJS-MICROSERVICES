@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package USER_SERVICE;
+
+service UserService {
+  rpc FindOneByEmail(FindByEmailRequest) returns (User) {}
+}
+
+message FindByEmailRequest {
+  string email = 1;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string password = 3; // 哈希后的密码
+}

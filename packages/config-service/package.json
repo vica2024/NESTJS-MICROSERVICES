@@ -1,5 +1,5 @@
 {
-  "name": "auth-service",
+  "name": "config-service",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "scripts": {
@@ -9,9 +9,5 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@nestjs/jwt": "^11.0.0",
-    "@nestjs/passport": "^11.0.5",
-    "bcrypt": "^6.0.0",
-    "passport-jwt": "^4.0.1"
   }
 }

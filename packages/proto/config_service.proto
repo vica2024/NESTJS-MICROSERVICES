@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package config;
+
+service ConfigService {
+  rpc GetConfig (GetConfigRequest) returns (GetConfigResponse);
+}
+
+message GetConfigRequest {
+  string service = 1;
+}
+
+message GetConfigResponse {
+  map<string, string> data = 1;
+}

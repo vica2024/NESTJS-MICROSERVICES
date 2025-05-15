@@ -1,0 +1,11 @@
+{
+  "name": "gateway-service",
+  "scripts": {
+    "dev": "nest start --watch",
+    "start": "nest start",
+    "build": "nest build",
+    "generate:docs": "ts-node src/generate-swagger.ts",
+    "sync:apifox": "npm run generate:docs && apifox import --file ./swagger-spec.json"
+  },
+  "dependencies": {}
+}
