@@ -16,6 +16,8 @@ model Shop {
   updatedAt   DateTime @updatedAt
 
   webhookInbox WebhookInbox[]
+  customers Customer[]
+  subscriptionRecords SubscriptionRecord[]
 }
 
 model WebhookInbox {
@@ -34,4 +36,91 @@ model WebhookInbox {
 
   @@unique([shopId, provider, eventId])
   @@index([status, receivedAt])
+}
+
+// Shopify customer 映射
+model Customer {
+  id                  String   @id @default(uuid())
+  shopId              String
+  shopifyCustomerId   String
+  email               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  membershipStatus MembershipStatus?
+  subscriptionRecords SubscriptionRecord[]
+
+  @@unique([shopId, shopifyCustomerId])
+  @@index([shopId])
+  @@index([shopId, email])
+}
+
+// 会员状态投影（单点真相）
+model MembershipStatus {
+  id              String   @id @default(uuid())
+  customerId      String   @unique
+  
+  // tier 等级
+  tier            String   @default("guest") // guest | pro
+  
+  // Pro 是否当前有效
+  isProEffective  Boolean  @default(false)
+  
+  // Pro 有效期
+  effectiveFrom   DateTime?
+  effectiveTo     DateTime?
+  
+  // past_due 状态时的时间戳
+  pastDueSince    DateTime?
+  
+  // 最后一次标签同步时间
+  lastSyncedAt    DateTime?
+  
+  // 标签同步错误（如果有）
+  tagSyncError    String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([tier])
+  @@index([isProEffective])
+}
+
+// 订阅记录（保命级数据，原始 Shopify 数据）
+model SubscriptionRecord {
+  id                  String   @id @default(uuid())
+  shopId              String
+  customerId          String
+  
+  // 来源provider
+  provider            String   @default("shopify") // shopify
+  
+  // Shopify 订阅ID
+  subscriptionId      String
+  
+  // 订阅状态：active | past_due | canceled | expired
+  status              String
+  
+  // 周期结束时间
+  currentPeriodEnd    DateTime
+  
+  // past_due 状态的时间戳（仅当status=past_due时有效）
+  pastDueSince        DateTime?
+  
+  // 原始 webhook payload
+  raw                 Json     @default("{}")
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, provider, subscriptionId])
+  @@index([shopId, customerId, status])
+  @@index([shopId, status])
+  @@index([currentPeriodEnd])
 }

@@ -4,6 +4,7 @@ import { PrismaModule } from '@app/db';
 import { QueueModule } from './infra/queue/queue.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { ShopsModule } from './modules/shops/shops.module';
+import { MembershipModule } from './modules/membership/membership.module';
 
 @Module({
   imports: [
@@ -12,6 +13,8 @@ import { ShopsModule } from './modules/shops/shops.module';
     QueueModule,
     ShopsModule,
     WebhooksModule,
+    MembershipModule,
   ],
 })
 export class AppModule {}
+

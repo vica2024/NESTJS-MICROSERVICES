@@ -12,11 +12,17 @@ import { QueueService } from './queue.service';
         password: process.env.REDIS_PASSWORD || undefined,
       },
     }),
-    BullModule.registerQueue({
-      name: QUEUE_NAMES.WEBHOOKS,
-    }),
+    BullModule.registerQueue(
+      {
+        name: QUEUE_NAMES.WEBHOOKS,
+      },
+      {
+        name: QUEUE_NAMES.MEMBERSHIP,
+      },
+    ),
   ],
   providers: [QueueService],
   exports: [QueueService],
 })
 export class QueueModule {}
+
