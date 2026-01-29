@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id          String   @id @default(uuid())
+  shopDomain  String   @unique
+  accessToken String
+  settings    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  webhookInbox WebhookInbox[]
+}
+
+model WebhookInbox {
+  id          String   @id @default(uuid())
+  shopId      String
+  provider    String
+  topic       String
+  eventId     String
+  payload     Json
+  receivedAt  DateTime @default(now())
+  processedAt DateTime?
+  status      String   @default("pending") // pending|processing|done|failed
+  error       String?
+
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  @@unique([shopId, provider, eventId])
+  @@index([status, receivedAt])
+}

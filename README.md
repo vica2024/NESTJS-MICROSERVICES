@@ -1,32 +1,62 @@
-# 🛡️ NestJS Auth Service
+# 🎯 Shopify Checkout-Safe 会员/积分系统
 
-该NestJS仓库构建了一个基于微服务架构的可扩展SaaS解决方案，采用模块化设计和清晰的代码结构，利用TypeScript确保类型安全。核心功能包括多租户支持、JWT身份验证和基于角色的访问控制。系统集成RESTful API和WebSocket实现实时通信，主数据库使用PostgreSQL，Redis负责缓存和队列管理。Docker容器化部署，Kubernetes实现弹性扩缩容。监控集成Prometheus和Grafana。代码强调可测试性，包含Jest单元测试和集成测试。CI/CD流水线自动化部署，遵循领域驱动设计（DDD）原则划分服务边界，确保可维护性。
+企业级微服务项目，基于 NestJS + Prisma + PostgreSQL + BullMQ + Redis，实现 Shopify Webhook 幂等处理、状态可追溯、积分不乱账、Worker 可重试的完整链路。
 
-# 📁 项目结构
+## 架构原则
 
+- **Webhook 幂等性**：单一真值源（UNIQUE 约束），重复消息自动去重
+- **状态机完整**：pending → processing → done|failed，支持人工介入
+- **原子操作**：并发抢锁（updateMany + 条件），避免脑裂
+- **可重试性**：指数退避 + 10 次重试，失败记录详情
+- **宁可少，不乱账**：v1 只做 inbox 落库 + 标记，严谨保守
 
+## 快速开始
+
+### 1. 依赖安装
 ```bash
-
-nestjs-saas-project/
-│
-├── packages/                      #微服务应用包
-│   ├── auth-service/              #权鉴服务
-│   │   └── ...
-│   ├── config-service/            #统一配置中心
-│   │   └── ...
-│   ├── gateway-service/           #网关服务
-│   │   └── ...
-│   ├── user-service/              #用户服务
-│   │   └── ...
-│   └── libs                       #公共服务
-│
-├── proto/
-│   └── user_service.proto         # gRPC 通信协议文件
-├── package.json
-├── README.md
-
-
+yarn install
 ```
+
+### 2. 启动基础设施
+```bash
+docker-compose up -d
+```
+
+### 3. 数据库迁移
+```bash
+yarn db:migrate
+```
+
+### 4. 启动服务
+```bash
+# 终端 1: API (3000)
+yarn start:shopify-loyalty
+
+# 终端 2: Worker
+yarn start:jobs
+
+# 或并行
+yarn start:all
+```
+
+## 本地测试
+
+### Seed Shop
+```bash
+curl -X POST http://localhost:3000/shops/seed \
+  -H "Content-Type: application/json" \
+  -d '{"shopDomain":"demo.myshopify.com","accessToken":"shpat_xxx"}'
+```
+
+### 发送 Webhook
+```bash
+curl -X POST "http://localhost:3000/webhooks/shopify?shop=demo.myshopify.com&topic=orders/create" \
+  -H "Content-Type: application/json" \
+  -H "x-shopify-webhook-id: test-webhook-id-1" \
+  -d '{"order_id":123,"total":99.99}'
+```
+
+返回 `{ "ok": true }` → 自动入队 → Worker 处理
 
 # 🚀 快速开始
 

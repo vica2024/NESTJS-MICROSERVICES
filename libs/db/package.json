@@ -1,0 +1,22 @@
+{
+  "name": "@app/db",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prisma": "prisma",
+    "migrate": "prisma migrate dev",
+    "studio": "prisma studio",
+    "generate": "prisma generate"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.0",
+    "@prisma/client": "4.15.0"
+  },
+  "devDependencies": {
+    "prisma": "^4.15.0",
+    "typescript": "^5.8.3"
+  }
+}

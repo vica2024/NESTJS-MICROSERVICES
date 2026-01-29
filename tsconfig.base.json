@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "lib": ["ES2022"],
+    "declaration": false,
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@app/db": ["libs/db/src/index.ts"],
+      "@app/queue": ["libs/queue/src/index.ts"],
+      "@app/common": ["libs/common/src/index.ts"],
+      "@app/shopify": ["libs/shopify/src/index.ts"]
+    }
+  }
+}
