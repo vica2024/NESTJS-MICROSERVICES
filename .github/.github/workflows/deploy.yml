@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# 同一个分支的新提交会取消前一次还没跑完的部署，避免并发部署互相覆盖
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # PR 和 push 都会跑：只做类型检查，快速失败，不接触任何真实资源
+  check:
+    name: 类型检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  # 只有合并到 master 才会真正跑数据库迁移和部署，PR 阶段不会碰生产环境
+  deploy:
+    name: 迁移数据库并部署
+    needs: check
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:css
+
+      # 先迁移数据库，成功了再部署代码，顺序反过来的话新代码可能会打到还没建好的表上
+      # CockroachDB 库是跟别的项目共用的，不用 wrangler d1 / prisma migrate，直接跑
+      # scripts/migrate.mjs（只管理带 payrank_ 前缀的表，见该脚本注释）
+      - name: 应用数据库迁移
+        run: node scripts/migrate.mjs
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: 部署到 Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
