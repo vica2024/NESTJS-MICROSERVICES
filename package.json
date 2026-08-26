@@ -1,0 +1,39 @@
+{
+  "name": "payrank",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n css,worker \"npm:dev:css\" \"npm:dev:worker\"",
+    "dev:css": "tailwindcss -i ./src/input.css -o ./public/styles.css --watch",
+    "dev:worker": "dotenv -e .dev.vars -- wrangler dev",
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/styles.css --minify",
+    "deploy": "npm run build:css && wrangler deploy",
+    "postinstall": "prisma generate",
+    "db:migrate": "dotenv -e .dev.vars -- node scripts/migrate.mjs",
+    "db:seed": "dotenv -e .dev.vars -- node scripts/seed.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@polar-sh/sdk": "^0.49.0",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "hono": "^4.6.9",
+    "nanoid": "^5.0.7",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260825.1",
+    "@tailwindcss/cli": "^4.3.3",
+    "@types/pg": "^8.23.1",
+    "concurrently": "^10.0.5",
+    "dotenv-cli": "^11.0.0",
+    "prisma": "^7.9.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.125.0"
+  },
+  "overrides": {
+    "sharp": "0.33.5"
+  }
+}

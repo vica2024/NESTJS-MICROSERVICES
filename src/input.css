@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/dm-sans-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/geist-mono-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #0A0C10;
+  --surface: #12151C;
+  --surface-2: #171B24;
+  --border: #23262F;
+  --text: #EDEFF3;
+  --text-dim: #8B92A3;
+  --text-faint: #4B5160;
+  --red: #E3383D;
+  --red-soft: rgba(227, 56, 61, 0.14);
+  --gold: #E8B93F;
+  --gold-soft: rgba(232, 185, 63, 0.14);
+  --rank1: #EA580C;
+  --rank2: #F97316;
+  --rank3: #FB923C;
+  --rank1-soft: rgba(234, 88, 12, 0.16);
+  --rank2-soft: rgba(249, 115, 22, 0.12);
+  --rank3-soft: rgba(251, 146, 60, 0.08);
+  --menu-shadow: rgba(0, 0, 0, 0.5);
+  --font-cjk: 'DM Sans', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', -apple-system, sans-serif;
+}
+
+:root[data-theme="light"] {
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #F1F2F5;
+  --border: #E2E5EA;
+  --text: #14161A;
+  --text-dim: #5B6270;
+  --text-faint: #9AA1AC;
+  --red: #E3383D;
+  --red-soft: rgba(227, 56, 61, 0.10);
+  --gold: #97690A;
+  --gold-soft: rgba(151, 105, 10, 0.12);
+  --rank1-soft: rgba(234, 88, 12, 0.10);
+  --rank2-soft: rgba(249, 115, 22, 0.08);
+  --rank3-soft: rgba(251, 146, 60, 0.06);
+  --menu-shadow: rgba(20, 22, 26, 0.15);
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(227, 56, 61, 0.08), transparent);
+    color: var(--text);
+    font-family: var(--font-cjk);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  html[data-theme="light"] body {
+    background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(227, 56, 61, 0.05), transparent);
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  /* 浏览器自动填充会强制刷成黄底黑字，用 inset box-shadow 盖掉，
+     拉长 transition-delay 防止填充瞬间闪一下原色 */
+  #f-input:-webkit-autofill,
+  #f-input:-webkit-autofill:hover,
+  #f-input:-webkit-autofill:focus,
+  #f-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    box-shadow: 0 0 0 1000px var(--surface) inset;
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+    transition: background-color 9999s ease-in-out 0s, color 9999s ease-in-out 0s;
+  }
+}
+
+/* 少数几个由 JS 切换 class 驱动的状态，纯工具类不好表达，保留成组件层 */
+@layer components {
+  .lang-switch-menu,
+  .cat-select-menu {
+    display: none;
+  }
+  .lang-switch-menu.show,
+  .cat-select-menu.show {
+    display: block;
+  }
+  .lang-switch-menu a.active { color: var(--red); font-weight: 700; }
+  .lang-switch-menu a.active .lang-switch-code { color: var(--red); }
+  .cat-select-btn.is-placeholder span { color: var(--text-faint); }
+  .cat-select-btn {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238B92A3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .cat-tab.active { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+  .form-error { display: none; }
+  .form-error.show { display: block; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .row .claim-btn { opacity: 0; pointer-events: none; transition: opacity .12s ease; }
+  .row:hover .claim-btn { opacity: 1; pointer-events: auto; }
+}

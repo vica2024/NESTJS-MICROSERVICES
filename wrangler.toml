@@ -1,0 +1,29 @@
+name = "payrank"
+main = "src/index.tsx"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+# 静态资源（logo、字体等），放在 public/ 下的文件会按原路径直接提供，比如
+# public/fonts/dm-sans-regular.woff2 -> /fonts/dm-sans-regular.woff2
+[assets]
+directory = "./public"
+
+# 生产环境的密钥不要写在这个文件里，用 `wrangler secret put` 逐个设置：
+#   wrangler secret put POLAR_ACCESS_TOKEN
+#   wrangler secret put ADMIN_TOKEN
+# DATABASE_URL 不再是 Worker 的密钥——Worker 通过下面的 HYPERDRIVE 绑定连库，连接串本身
+# 由 Cloudflare 托管；DATABASE_URL 只有本地跑 scripts/migrate.mjs、scripts/seed.mjs、
+# prisma generate 这些不经过 Worker 的工具脚本时才需要，见 .dev.vars。
+
+# Hyperdrive：Worker 每个请求都新建 TCP 连接到远端 CockroachDB 延迟很高（实测本地 5~10s），
+# 接 Hyperdrive 做连接池 + 边缘就近接入。用 `wrangler hyperdrive create` 创建，跟别的项目
+# 共用的那个 CockroachDB 库不受影响，Hyperdrive 只是中间多一层连接池代理。
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "261251374bcf46d08fe4831d3d553cd4"
+
+[vars]
+SITE_URL = "https://payrank.cc"        # 生产环境域名
+MIN_BID_CENTS = "500"                  # 出价下限，单位美分，500 = 5 美元；具体金额由用户在首页步进器里自己选，服务端只校验下限（这个值还是测试期间改的，正式上线前确认一下要不要调回去）
+POLAR_PRODUCT_ID = "f99e8d15-f888-4ad3-971c-e004875cc975"  # production 环境的 "Pay what you want" 产品 id
+POLAR_SERVER = "production"

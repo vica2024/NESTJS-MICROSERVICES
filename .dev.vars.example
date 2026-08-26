@@ -1,0 +1,9 @@
+# 复制为 .dev.vars 后填入真实值，.dev.vars 不要提交到 git
+POLAR_ACCESS_TOKEN=polar_oat_xxxxxxxxxxxxxxxxxxxx
+ADMIN_TOKEN=change_me_to_a_long_random_string
+# CockroachDB (Postgres 协议) 连接串，这个库跟别的项目共用，本项目的表都带 payrank_ 前缀
+# 只给本地工具脚本（scripts/migrate.mjs、scripts/seed.mjs、prisma generate）用，
+# Worker 运行时不读这个，走的是 wrangler.toml 里的 HYPERDRIVE 绑定
+DATABASE_URL=postgresql://user:password@host:26257/defaultdb?sslmode=verify-full
+# wrangler dev 本地跑 HYPERDRIVE 绑定需要这个变量，直接填跟 DATABASE_URL 一样的值即可
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://user:password@host:26257/defaultdb?sslmode=verify-full

@@ -1,0 +1,62 @@
+datasource db {
+  provider = "cockroachdb"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  runtime  = "workerd"
+}
+
+// 条目表：一个产品/网站/主页在榜单上的一行
+model Listing {
+  id         String  @id
+  name       String
+  url        String
+  tagline    String?
+  category   String  @default("other")
+  avatarUrl  String? @map("avatar_url")
+  totalCents Int     @default(0) @map("total_cents")
+  clicks     Int     @default(0)
+  createdAt  BigInt  @map("created_at")
+  updatedAt  BigInt  @map("updated_at")
+
+  bids Bid[]
+
+  @@index([totalCents(sort: Desc)])
+  @@map("payrank_listings")
+}
+
+// 出价表：每一笔支付记录，出价永久有效、不退款、不清零
+model Bid {
+  id                String  @id
+  listingId         String  @map("listing_id")
+  amountCents       Int     @map("amount_cents")
+  status            String  @default("pending") // pending | paid | failed
+  paymentSessionId  String? @unique @map("payment_session_id")
+  createdAt         BigInt  @map("created_at")
+  paidAt            BigInt? @map("paid_at")
+
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@index([listingId])
+  @@index([status, paidAt(sort: Desc)])
+  @@map("payrank_bids")
+}
+
+// 在线人数：每个访客一行，靠 last_seen 判断是否还在线
+model Presence {
+  sessionId String @id @map("session_id")
+  lastSeen  BigInt @map("last_seen")
+
+  @@index([lastSeen])
+  @@map("payrank_presence")
+}
+
+// 全站累计访问次数，只有一行
+model SiteStats {
+  id          Int @id
+  totalVisits Int @default(0) @map("total_visits")
+
+  @@map("payrank_site_stats")
+}
